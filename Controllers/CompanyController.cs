@@ -17,7 +17,7 @@ namespace CompanySupplier.WebApi.Controllers
         }
 
         [HttpGet("{id}", Name = "GetCompany")]
-        public ActionResult<Company> Get(int id)
+        public IActionResult Get(int id)
         {
             var company = _companyRepository.GetCompany(id);
 
@@ -30,14 +30,14 @@ namespace CompanySupplier.WebApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Company> Get()
+        public IActionResult Get()
         {
             var companies = _companyRepository.GetCompanies();
             return Ok(companies);
         }
 
         [HttpPost]
-        public ActionResult<Company> Create([FromBody] CompanyDTO companyDTO)
+        public IActionResult Create([FromBody] CompanyDTO companyDTO)
         {
             var company = new Company(companyDTO.FantasyName);
             
@@ -46,10 +46,37 @@ namespace CompanySupplier.WebApi.Controllers
             {
                 var c = _companyRepository.Create(company);
 
-                return CreatedAtRoute("GetCompany", c.CompanyId);
+                return CreatedAtRoute("GetCompany", new { Id = c.CompanyId });
             }
 
             return BadRequest("Unexpected company format.");
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] CompanyDTO companyDTO)
+        {
+            var company = new Company(companyDTO.FantasyName);
+
+            if (company.AddDocument(companyDTO.DocumentValue, companyDTO.DocumentType)
+                && company.AddFederativeUnit(companyDTO.FederativeUnit))
+            {
+                _companyRepository.Update(id, company);
+
+                return NoContent();
+            }
+
+            return BadRequest("Unexpected company format.");
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Remove(int id)
+        {
+            if (!_companyRepository.CompanyExists(id))
+                return NotFound();
+
+            _companyRepository.Remove(id);
+
+            return NoContent();
         }
     }
 }

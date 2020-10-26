@@ -27,7 +27,7 @@ namespace CompanySupplier.WebApi.Repositories
             return company;
         }
 
-        public bool CompanyExists(string fantasyName) => _context.Companies.Any(c => c.FantasyName == fantasyName);
+        public bool CompanyExists(int id) => _context.Companies.Any(c => c.CompanyId == id);
 
         public List<Company> GetCompanies() => _context.Companies
                                                     .Include(c => c.Document)
@@ -44,8 +44,9 @@ namespace CompanySupplier.WebApi.Repositories
         {
             if (companyIn.Validate())
             {
-                var produto = _context.Companies.Where(c => c.CompanyId == id).FirstOrDefault();
-                produto = companyIn;
+                var toUpdate = companyIn;
+                toUpdate.CompanyId = id;
+                _context.Update(companyIn);
                 _context.SaveChanges();
             }
         }

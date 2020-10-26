@@ -5,7 +5,7 @@ namespace CompanySupplier.WebApi.Repositories
 {
     public interface ICompanyRepository
     {
-        public bool CompanyExists(string fantasyName);
+        public bool CompanyExists(int id);
 
         public Company Create(Company company);
 
